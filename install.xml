@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+	<name>Hide of Stock - Disabled Add to Cart Button</name>
+	<version>1.1</version>
+	<code>out_of_stock</code>
+	<author>REDS</author>
+	<link>https://www.agenciaprai.com/</link>
+	
+	<file path="catalog/controller/product/product.php">
+		<operation>
+			<search><![CDATA[
+				if ($product_info['quantity'] <= 0) {
+			]]></search>
+			<add position="before"><![CDATA[
+				// @reds desabled add cart
+				$data['stock_quantity'] = $product_info['quantity'];
+				$data['text_out_of_stock'] = $product_info['stock_status'];
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[
+				$data['products'][] = array(
+			]]></search>
+			<add position="after"><![CDATA[
+				'quantity'     			=> $result['quantity'],
+				'text_out_of_stock'     => $result['stock_status'],
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/view/theme/*/template/product/product.twig">
+		<operation>
+			<search><![CDATA[
+			<button type="button" id="button-cart" data-loading-text="{{ text_loading }}" class="btn btn-primary btn-lg btn-block">{{ button_cart }}</button>
+			]]></search>
+			<add position="replace"><![CDATA[
+			<button type="button" {% if stock_quantity < 1 %} id="button-outstock" class="btn btn-danger btn-lg btn-block" disabled="disabled"{% else %}id="button-cart" data-loading-text="{{ text_loading }}" class="btn btn-primary btn-lg btn-block"{% endif %} >
+			{% if stock_quantity < 1 %}<i class="fa fa-warning"></i> {{ text_out_of_stock }}{% else %}{{ button_cart }}{% endif %}</button>
+			]]></add>
+		</operation>
+		<operation info="related product">
+			<search><![CDATA[
+			<button type="button" onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');"><span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span> <i class="fa fa-shopping-cart"></i></button>
+			]]></search>
+			<add position="replace"><![CDATA[
+			<button type="button" onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');" {% if product.quantity < 1 %} disabled="disabled"{% endif %}>
+			{% if product.quantity < 1 %}<i class="fa fa-warning"></i> {{ product.text_out_of_stock }}{% else %}
+			<span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span> <i class="fa fa-shopping-cart"></i>{% endif %}</button>
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="catalog/controller/extension/module/{latest,bestseller,special}.php|catalog/controller/product/{category,special,search,compare,manufacturer}.php">
+		<operation>
+			<search><![CDATA[
+				$data['products'][] = array(
+			]]></search>
+			<add position="after"><![CDATA[
+				'quantity'     			=> $result['quantity'],
+				'text_out_of_stock'     => $result['stock_status'],
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/controller/extension/module/featured.php">
+		<operation>
+			<search><![CDATA[
+				$data['products'][] = array(
+			]]></search>
+			<add position="after"><![CDATA[
+				'quantity'     			=> $product_info['quantity'],
+				'text_out_of_stock'     => $product_info['stock_status'],
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/view/theme/*/template/extension/module/{featured,latest,featured,bestseller,special}.twig">
+		<operation>
+			<search><![CDATA[
+			<button type="button" onclick="cart.add('{{ product.product_id }}');"><i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span></button>
+			]]></search>
+			<add position="replace"><![CDATA[
+			<button type="button" onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');" {% if product.quantity < 1 %} disabled="disabled"{% endif %}>
+			{% if product.quantity < 1 %}<i class="fa fa-warning"></i> {{ product.text_out_of_stock }}{% else %}
+			<i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span>{% endif %}</button>
+			]]></add>
+		</operation>
+	</file>
+	<file path="catalog/view/theme/*/template/product/{category,special,search,compare,manufacturer_info}.twig">
+		<operation>
+			<search><![CDATA[
+			<button type="button" onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');"><i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span></button>
+			]]></search>
+			<add position="replace"><![CDATA[
+			<button type="button" onclick="cart.add('{{ product.product_id }}', '{{ product.minimum }}');" {% if product.quantity < 1 %} disabled="disabled"{% endif %}>
+			{% if product.quantity < 1 %}<i class="fa fa-warning"></i> {{ product.text_out_of_stock }}</button>{% else %}
+			<i class="fa fa-shopping-cart"></i> <span class="hidden-xs hidden-sm hidden-md">{{ button_cart }}</span>{% endif %}</button>
+			]]></add>
+		</operation>
+	</file>
+</modification>
